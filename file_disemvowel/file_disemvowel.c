@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
-#define BUF_SIZE 1024;
+#define BUF_SIZE 1024
 
 bool is_vowel(char c) {
   // Returns true if c is a vowel and false otherwise
@@ -30,7 +31,7 @@ int copy_non_vowels(int num_chars, char* in_buf, char* out_buf) {
   return num_nonvowel;
 }
 
-void disemvowel(File* inputFile, File* outputFile) {
+void disemvowel(FILE* inputFile, FILE* outputFile) {
   // Copy all non-vowels from inputFile to OutputFile
   char input[BUF_SIZE];
   char output[BUF_SIZE];
@@ -45,15 +46,33 @@ void disemvowel(File* inputFile, File* outputFile) {
   }
 }
 
-int main(int argc, char *argv[]) {
-  // This sets `stdin` and `stdout` by default
+
+int main(int argc, char *argv[]){
+  // `stdin` and `stdout` are the default names of the input and output respectively
   FILE *inputFile = stdin;
   FILE *outputFile = stdout;
 
-  // Code that processes the command line arguments
-  // And sets up input and output files
-  
+  // Note: The first argument is always the name of the program, so:
+  // 	Having 2 arguments means we only were given the input file
+  // 	Having 3 arguments measn we were given the input and output files
+  // 	Having more than 3 argument smeans we were given too many files
+  if(argc == 2) {
+    // If only given an input file, open it and make it readable
+    inputFile = fopen(argv[1], "r");
+  } else if(argc == 3){
+    // If given input and output file:
+    //   Open the input file and make it readable
+    inputFile = fopen(argv[1], "r");
+    //   Open the output file and make it writable
+    outputFile = fopen(argv[2], "w");
+  } else if(argc > 3){
+    // If given too many arguments, output an error and stop the program
+    fprintf(stderr, "Too many arguments were used");
+    return 1;
+  }
+
   disemvowel(inputFile, outputFile);
 
   return 0;
 }
+
