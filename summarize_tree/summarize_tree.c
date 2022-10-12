@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <sys/stat.h>
 #include <stdbool.h>
@@ -15,13 +16,24 @@ bool is_dir(const char* path) {
    * S_ISDIR to see if the file is a directory. Make sure you check the
    * return value from stat() in case there is a problem, e.g., maybe the
    * the file doesn't actually exist.
-   */
+   */ 
+
+  // Create a member of stat `buf`  
+  struct stat buf;
+  // If the error code of stat() is not zero, output an error code
+  if (stat(path, &buf) != 0) {
+    fprintf(stderr, "ERROR");
+    exit(1);
+  }
+  // Otherwise, return the path to extract information directly
+  return S_ISDIR(buf.st_mode);
 }
 
-/* 
+/*
  * I needed this because the multiple recursion means there's no way to
  * order them so that the definitions all precede the cause.
  */
+
 void process_path(const char*);
 
 void process_directory(const char* path) {
@@ -36,13 +48,41 @@ void process_directory(const char* path) {
    * with a matching call to chdir() to move back out of it when you're
    * done.
    */
+  
+  // Increase the number of directories seen
+  num_dirs++;
+
+  // Open the directory
+  DIR* currentDirectory = opendir(path);
+  
+  // Create a member of the format of directory entries
+  struct dirent *entry;
+  // Read the first member of the directory we are working out of
+  entry = readdir(currentDirectory);
+
+  // While the entry is not null:
+  while (entry != NULL) {
+    
+    // If the entry name does not start with a ".", then process the path of the entry
+    if (entry->d_name[0] != '.') {
+      process_path(entry->d_name);
+    }
+    
+    // Go to the next entry in the directory
+    entry = readdir(currentDirectory);
+  }
+  // Close directory that currently working in
+  closedir(currentDirectory);
 }
+
+
 
 void process_file(const char* path) {
   /*
    * Update the number of regular files.
    * This is as simple as it seems. :-)
    */
+  num_regular++;
 }
 
 void process_path(const char* path) {
@@ -71,3 +111,5 @@ int main (int argc, char *argv[]) {
 
   return 0;
 }
+
+
