@@ -16,7 +16,7 @@ bool is_dir(const char* path) {
    * S_ISDIR to see if the file is a directory. Make sure you check the
    * return value from stat() in case there is a problem, e.g., maybe the
    * the file doesn't actually exist.
-   */ 
+   */  
 
   // Create a member of stat `buf`  
   struct stat buf;
@@ -52,8 +52,11 @@ void process_directory(const char* path) {
   // Increase the number of directories seen
   num_dirs++;
 
+  // Go into the given directory
+  chdir(path);
+
   // Open the directory
-  DIR* currentDirectory = opendir(path);
+  DIR* currentDirectory = opendir(".");
   
   // Create a member of the format of directory entries
   struct dirent *entry;
@@ -73,6 +76,9 @@ void process_directory(const char* path) {
   }
   // Close directory that currently working in
   closedir(currentDirectory);
+
+  // Leave the directory
+  chdir("..");
 }
 
 
@@ -111,5 +117,4 @@ int main (int argc, char *argv[]) {
 
   return 0;
 }
-
 
